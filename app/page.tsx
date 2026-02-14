@@ -2,10 +2,18 @@
 
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function Home() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("theme") === "dark";
+    }
+    return false;
+  });
+
+  const router = useRouter();
 
   const login = async () => {
     await supabase.auth.signInWithOAuth({
@@ -15,14 +23,27 @@ export default function Home() {
       },
     });
   };
-
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
     } else {
       document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
     }
   }, [darkMode]);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+
+      if (data.session) {
+        router.push("/dashboard");
+      }
+    };
+
+    checkSession();
+  }, [router]);
 
   return (
     <div
@@ -103,7 +124,7 @@ export default function Home() {
           className="
             mt-8
             flex items-center gap-3
-            bg-white dark:bg-gray-800
+            bg-white/60 dark:bg-gray-700
             px-6 py-3
             rounded-xl
             shadow-lg
@@ -112,12 +133,7 @@ export default function Home() {
             text-sm sm:text-base
           "
         >
-          <Image
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            alt="Google"
-            width={20}
-            height={20}
-          />
+          <Image src="/google.svg" alt="Google" width={20} height={20} />
           Continue with Google
         </button>
       </div>

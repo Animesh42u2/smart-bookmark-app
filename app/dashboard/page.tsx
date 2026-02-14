@@ -71,6 +71,19 @@ export default function Dashboard() {
     };
     checkSession();
   }, []);
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        window.location.href = "/";
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     let channel: RealtimeChannel | null = null;
@@ -152,8 +165,8 @@ export default function Dashboard() {
 
   const logout = async () => {
     await supabase.auth.signOut();
-    window.location.href = "/";
   };
+
   const filteredBookmarks = bookmarks.filter(
     (bookmark) =>
       bookmark.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
