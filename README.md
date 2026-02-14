@@ -1,173 +1,176 @@
-Smart Bookmark App
+# Smart Bookmark App
 
-A real-time, production-ready bookmark manager built with Next.js (App Router) and Supabase.
+- A real-time, production-ready bookmark manager built with Next.js (App Router) and Supabase.
 
-🔗 Live Demo
-https://smart-bookmark-app-nu-blue.vercel.app
+## Live Demo
+- https://smart-bookmark-app-nu-blue.vercel.app
 
-🔗 GitHub Repository
-https://github.com/Animesh42u2/smart-bookmark-app
+## GitHub Repository
+- https://github.com/Animesh42u2/smart-bookmark-app
 
-Features
+## Features
 
-Google OAuth Authentication (Supabase)
+- Google OAuth Authentication (Supabase)
 
-Add bookmarks
+- Add bookmarks
 
-Delete bookmarks
+- Delete bookmarks
 
-Search bookmarks
+- Search bookmarks
 
-Real-time sync across multiple tabs
+- Real-time sync across multiple tabs
 
-Dark / Light mode toggle
+- Dark / Light mode toggle
 
-Row-Level Security (RLS) enforced
+- Row-Level Security (RLS) enforced
 
-Deployed on Vercel
+- Deployed on Vercel
 
-Tech Stack
+## Tech Stack
 
-Next.js (App Router)
+- Next.js (App Router)
 
-Supabase (Auth, PostgreSQL, Realtime)
+- Supabase (Auth, PostgreSQL, Realtime)
 
-Tailwind CSS
+- Tailwind CSS
 
-Vercel
+- Vercel
 
-Environment Variables
+## Environment Variables
 
-Create a .env.local file:
+Create a `.env.local` file:
 
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 In production, these are securely configured in Vercel Project Settings.
 
-Challenges Faced & How I Solved Them
-1️ Missing <html> in Layout
+#  Challenges Faced & Solutions
+- Missing <html> in Layout
 
-Problem:
-App Router threw an error due to missing required <html> and <body> tags in layout.tsx.
+**Problem:**
+- App Router threw an error due to missing required <html> and <body> tags in layout.tsx.
 
-Solution:
-Updated layout:
+**Solution:**
+- Updated layout:
 
 <html lang="en">
   <body>{children}</body>
 </html>
 
-2 Row-Level Security (RLS) Configuration
+- 2 Row-Level Security (RLS) Configuration
 
-Problem:
-Insert and delete operations failed due to missing policies.
+**Problem:**
+- Insert and delete operations failed due to missing policies.
 
-Solution:
-Enabled RLS and created policies:
+**Solution:**
+- Enabled RLS and created policies:
 
-Allow select where auth.uid() = user_id
+- Allow select where auth.uid() = user_id
 
-Allow insert where auth.uid() = user_id
+- Allow insert where auth.uid() = user_id
 
-Allow delete where auth.uid() = user_id
+- Allow delete where auth.uid() = user_id
 
-Ensured bookmarks are private per user.
+- Ensured bookmarks are private per user.
 
-3 user_id Default Issue
+- 3 user_id Default Issue
 
-Problem:
-Insert failed because user_id was not attached.
+**Problem:**
+- Insert failed because user_id was not attached.
 
-Solution:
-Explicitly passed:
+**Solution:**
+- Explicitly passed:
 
-user_id: user.id
+- user_id: user.id
 
-during insert.
+# during insert 400 Insert Error Debugging
 
-4 400 Insert Error Debugging
+**Problem:**
+- Received 400 Bad Request during insert.
 
-Problem:
-Received 400 Bad Request during insert.
+# Cause:
 
-Cause:
+- RLS misconfiguration
 
-RLS misconfiguration
+- Missing user_id
 
-Missing user_id
+- Invalid auth session
 
-Invalid auth session
-
-Solution:
-Verified session before insert and debugged Supabase logs to correct policies.
+**Solution:**
+- Verified session before insert and debugged Supabase logs to correct policies.
 
 5 Realtime Publication Not Triggering
 
-Problem:
-Changes were not syncing across tabs.
+**Problem:**
+- Changes were not syncing across tabs.
 
-Solution:
-Enabled replication for bookmarks table and subscribed to:
+**Solution:**
+- Enabled replication for bookmarks table and subscribed to:
 
 supabase
-.channel("realtime-bookmarks")
-.on("postgres_changes", { event: "\*", schema: "public", table: "bookmarks" }, fetchBookmarks)
-.subscribe();
+  .channel("realtime-bookmarks")
+  .on(
+    "postgres_changes",
+    { event: "*", schema: "public", table: "bookmarks" },
+    fetchBookmarks
+  )
+  .subscribe();
 
-Now insert and delete sync instantly.
 
-6 Dark & Light Mode Implementation
+- Now insert and delete sync instantly.
 
-Problem:
-Theme needed to persist across refresh.
+## 6️⃣ Dark & Light Mode Implementation
 
-Solution:
-Configured tailwind.config.ts:
+**Problem:**
+- Theme needed to persist across refresh.
 
-darkMode: "class"
+**Solution:**
+- Configured tailwind.config.ts:
 
-Used document.documentElement.classList.toggle("dark") and stored preference in localStorage.
+- darkMode: "class"
 
-7 Google OAuth Redirect Issue (Production)
+- Used document.documentElement.classList.toggle("dark") and stored preference in localStorage.
 
-Problem:
-After deployment, login redirected to:
+- Google OAuth Redirect Issue (Production)
 
-http://localhost:3000
+**Problem:**
+- After deployment, login redirected to:
 
-Resulting in:
+- http://localhost:3000
 
-ERR_CONNECTION_REFUSED
+# Resulting in:
 
-Cause:
-Supabase Site URL was still set to localhost.
+- ERR_CONNECTION_REFUSED
 
-Solution:
-Updated:
+# Cause:
+- Supabase Site URL was still set to localhost.
 
-Supabase → Authentication → URL Configuration
+**Solution:**
+# Updated:
 
-Set:
+- Supabase → Authentication → URL Configuration
 
-https://smart-bookmark-app-nu-blue.vercel.app
+# Set:
 
-Also updated authorized domains in Google Cloud Console.
+- https://smart-bookmark-app-nu-blue.vercel.app
 
-Run Locally
+- Also updated authorized domains in Google Cloud Console.
+
+## Run Locally
 git clone https://github.com/Animesh42u2/smart-bookmark-app.git
 cd smart-bookmark-app
 npm install
 npm run dev
 
-Open:
+# Open:
 
 http://localhost:3000
 
-Deployment
+##  Deployment
 
-Deployed on Vercel with production environment variables configured securely.
+- Deployed on Vercel with production environment variables configured securely.
 
-Author
+## Author
 
 Animesh Mohapatra
