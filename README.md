@@ -1,36 +1,173 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Smart Bookmark App
 
-## Getting Started
+A real-time, production-ready bookmark manager built with Next.js (App Router) and Supabase.
 
-First, run the development server:
+🔗 Live Demo
+https://smart-bookmark-app-nu-blue.vercel.app
 
-```bash
+🔗 GitHub Repository
+https://github.com/Animesh42u2/smart-bookmark-app
+
+Features
+
+Google OAuth Authentication (Supabase)
+
+Add bookmarks
+
+Delete bookmarks
+
+Search bookmarks
+
+Real-time sync across multiple tabs
+
+Dark / Light mode toggle
+
+Row-Level Security (RLS) enforced
+
+Deployed on Vercel
+
+Tech Stack
+
+Next.js (App Router)
+
+Supabase (Auth, PostgreSQL, Realtime)
+
+Tailwind CSS
+
+Vercel
+
+Environment Variables
+
+Create a .env.local file:
+
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+In production, these are securely configured in Vercel Project Settings.
+
+Challenges Faced & How I Solved Them
+1️ Missing <html> in Layout
+
+Problem:
+App Router threw an error due to missing required <html> and <body> tags in layout.tsx.
+
+Solution:
+Updated layout:
+
+<html lang="en">
+  <body>{children}</body>
+</html>
+
+2 Row-Level Security (RLS) Configuration
+
+Problem:
+Insert and delete operations failed due to missing policies.
+
+Solution:
+Enabled RLS and created policies:
+
+Allow select where auth.uid() = user_id
+
+Allow insert where auth.uid() = user_id
+
+Allow delete where auth.uid() = user_id
+
+Ensured bookmarks are private per user.
+
+3 user_id Default Issue
+
+Problem:
+Insert failed because user_id was not attached.
+
+Solution:
+Explicitly passed:
+
+user_id: user.id
+
+during insert.
+
+4 400 Insert Error Debugging
+
+Problem:
+Received 400 Bad Request during insert.
+
+Cause:
+
+RLS misconfiguration
+
+Missing user_id
+
+Invalid auth session
+
+Solution:
+Verified session before insert and debugged Supabase logs to correct policies.
+
+5 Realtime Publication Not Triggering
+
+Problem:
+Changes were not syncing across tabs.
+
+Solution:
+Enabled replication for bookmarks table and subscribed to:
+
+supabase
+.channel("realtime-bookmarks")
+.on("postgres_changes", { event: "\*", schema: "public", table: "bookmarks" }, fetchBookmarks)
+.subscribe();
+
+Now insert and delete sync instantly.
+
+6 Dark & Light Mode Implementation
+
+Problem:
+Theme needed to persist across refresh.
+
+Solution:
+Configured tailwind.config.ts:
+
+darkMode: "class"
+
+Used document.documentElement.classList.toggle("dark") and stored preference in localStorage.
+
+7 Google OAuth Redirect Issue (Production)
+
+Problem:
+After deployment, login redirected to:
+
+http://localhost:3000
+
+Resulting in:
+
+ERR_CONNECTION_REFUSED
+
+Cause:
+Supabase Site URL was still set to localhost.
+
+Solution:
+Updated:
+
+Supabase → Authentication → URL Configuration
+
+Set:
+
+https://smart-bookmark-app-nu-blue.vercel.app
+
+Also updated authorized domains in Google Cloud Console.
+
+Run Locally
+git clone https://github.com/Animesh42u2/smart-bookmark-app.git
+cd smart-bookmark-app
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+http://localhost:3000
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Deployment
 
-## Learn More
+Deployed on Vercel with production environment variables configured securely.
 
-To learn more about Next.js, take a look at the following resources:
+Author
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Animesh Mohapatra
